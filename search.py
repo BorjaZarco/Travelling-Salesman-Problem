@@ -109,14 +109,19 @@ def graph_search(problem, fringe):
     If two paths reach a state, only use the best one. [Fig. 3.18]"""
     closed = {}
     fringe.append(Node(problem.initial))
+    generated_nodes = 1
+    visited_nodes = 0
     while fringe:
         node = fringe.pop()
+        visited_nodes += 1 
         if problem.goal_test(node.state):
-            return node
+            return { "solution": node, "visited_nodes":visited_nodes, "generated_nodes":generated_nodes}
         if node.state not in closed:
             closed[node.state] = True
+            nodes_before_extend = len(fringe)
             fringe.extend(node.expand(problem))
-    return None
+            generated_nodes = len(fringe) - nodes_before_extend
+    return { "solution": None, "visited_nodes":visited_nodes, "generated_nodes":generated_nodes }
 
 
 def breadth_first_graph_search(problem):
@@ -133,6 +138,9 @@ def bab(problem):
     """Search the deepest nodes in the search tree first. [p 74]"""
     return graph_search(problem, babg())
 
+def subBAB(problem):
+    """Search the deepest nodes in the search tree first. [p 74]"""
+    return graph_search(problem, subBABg(problem))
 
 
 # _____________________________________________________________________________
@@ -261,6 +269,8 @@ class GPSProblem(Problem):
 
     def __init__(self, initial, goal, graph):
         Problem.__init__(self, initial, goal)
+        self.initial = initial
+        self.goal = goal
         self.graph = graph
 
     def successor(self, A):
@@ -277,3 +287,6 @@ class GPSProblem(Problem):
             return int(distance(locs[node.state], locs[self.goal]))
         else:
             return infinity
+
+    def problem_title(self):
+        return "Problema de Ciudad "+self.initial+" a Ciudad "+self.goal
